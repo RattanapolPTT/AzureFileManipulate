@@ -1,7 +1,7 @@
  #Local
  
-docker build -t azure-file-mani-img:1.x .  
-docker container run --name ptthr -p 443:443 azure-file-mani-img:1.x
+docker build -t azure-file-mani-img:1.1 .  
+docker container run --name ptthr -p 443:443 azure-file-mani-img:1.1
 
 
 #Local for Mac M1
@@ -15,21 +15,21 @@ docker buildx ls
 docker buildx build --tag azure-file-mani-img:2.0 -o type=image --platform=linux/arm64,linux/amd64 .
 docker buildx build --tag azure-file-mani-img:2.0 -o type=image --platform=linux/arm64 .
 docker buildx build --tag azure-file-mani-img:2.0 -o type=image --platform=linux/amd64 .
-docker buildx build --tag azure-file-mani-img:1.0-linux64 --output "type=docker,name=azure-file-mani-img:1.0-linux64" --platform=linux/arm64,linux/amd64 .
+docker buildx build --tag azure-file-mani-img:1.1-linux64 --output "type=docker,name=azure-file-mani-img:1.1-linux64" --platform=linux/arm64,linux/amd64 .
 
 
 
-docker container run --name ptthr -p 443:443 azure-file-mani-img:1.0-linux64
+docker container run --name ptthr -p 443:443 azure-file-mani-img:1.1-linux64
 
 
 #Remote
 
   ##Init
 az login
-az acr login --name HRWebservicesDEV
-docker login hrwebservicesdev.azurecr.io -u HRWebservicesDEV -p YDfU4dgWtYz27CIG=izgICjVk5WYwbLK
+az acr login --name thisisasamplergt01
+docker login thisisasamplergt01.azurecr.io -u thisisasamplergt01 -p Vc=DIMgyWB191eVByD9K7V7EHlW+XUMu
 
   ## push
-docker tag azure-file-mani-img:1.x hrwebservicesdev.azurecr.io/azure-file-mani-img:1.x
-docker image push hrwebservicesdev.azurecr.io/azure-file-mani-img:1.x
+docker tag azure-file-mani-img:1.1 thisisasamplergt01.azurecr.io/azure-file-mani-img:1.1
+docker image push thisisasamplergt01.azurecr.io/azure-file-mani-img:1.1
 
