@@ -1,17 +1,24 @@
 
 
-FROM mcr.microsoft.com/dotnet/aspnet:6.0-focal AS base
+FROM mcr.microsoft.com/dotnet/aspnet:6.0-alpine AS base
 WORKDIR /app
-EXPOSE 2222
+EXPOSE 80 2222
 
 ENV ASPNETCORE_URLS=http://+:5555
 
-RUN apt-get update && apt-get install -y supervisor && apt-get install -y openssh-server && echo "root:Docker!" | chpasswd 
 
-RUN mkdir -p /var/log/supervisor /run/sshd
+# Install OpenSSH and set the password for root to "Docker!". In this example, "apk add" is the install instruction for an Alpine Linux-based image.
+RUN apk add openssh \
+     && echo "root:Docker!" | chpasswd 
 
+# Copy the sshd_config file to the /etc/ssh/ directory
 COPY sshd_config /etc/ssh/
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Copy and configure the ssh_setup file
+RUN mkdir -p /tmp
+COPY ssh_setup.sh /tmp
+RUN chmod +x /tmp/ssh_setup.sh \
+    && (sleep 1;/tmp/ssh_setup.sh 2>&1 > /dev/null)
 
 
 
@@ -20,7 +27,7 @@ COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 # RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser /app
 # USER appuser
 
-FROM mcr.microsoft.com/dotnet/sdk:6.0-focal AS build
+FROM mcr.microsoft.com/dotnet/sdk:6.0-alpine AS build
 WORKDIR /src
 COPY ["AzureFileMani.API/AzureFileMani.API.csproj", "AzureFileMani.API/"]
 RUN dotnet restore "AzureFileMani.API/AzureFileMani.API.csproj"
@@ -35,5 +42,5 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 # ENTRYPOINT ["dotnet", "AzureFileMani.API.dll"]
-ENTRYPOINT ["/usr/bin/supervisord"]
+ENTRYPOINT ["/usr/sbin/sshd"]
 #  ENTRYPOINT ["/usr/bin/supervisord && dotnet AzureFileMani.API.dll"]
