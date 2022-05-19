@@ -1,8 +1,19 @@
+
+
 FROM mcr.microsoft.com/dotnet/aspnet:6.0-focal AS base
 WORKDIR /app
-EXPOSE 5555
+EXPOSE 2222
 
 ENV ASPNETCORE_URLS=http://+:5555
+
+RUN apt-get update && apt-get install -y supervisor && apt-get install -y openssh-server && echo "root:Docker!" | chpasswd 
+
+RUN mkdir -p /var/log/supervisor /run/sshd
+
+COPY sshd_config /etc/ssh/
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+
 
 # Creates a non-root user with an explicit UID and adds permission to access the /app folder
 # For more info, please refer to https://aka.ms/vscode-docker-dotnet-configure-containers
@@ -23,4 +34,6 @@ RUN dotnet publish "AzureFileMani.API.csproj" -c Release -o /app/publish /p:UseA
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "AzureFileMani.API.dll"]
+# ENTRYPOINT ["dotnet", "AzureFileMani.API.dll"]
+ENTRYPOINT ["/usr/bin/supervisord"]
+#  ENTRYPOINT ["/usr/bin/supervisord && dotnet AzureFileMani.API.dll"]
