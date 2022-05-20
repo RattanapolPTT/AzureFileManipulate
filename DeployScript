@@ -1,8 +1,9 @@
  #Local
  
-docker build -t azure-file-mani-img:1.6 .  
+docker build -t azure-file-mani-img:4.5 .  
 docker container run --name azure-file-mani -p 5555:5555 -p 2222:2222 azure-file-mani-img:1.6
 docker container run --name azure-file-mani -p 80:80 -p 2222:2222 azure-file-mani-img:1.6
+docker container run --name azure-file-mani -p 80:80 azure-file-mani-img:4.5
 
 
 #Local for Mac M1
